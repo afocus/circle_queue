@@ -17,8 +17,7 @@ type CirCle struct {
 	closed  chan struct{}
 
 	// 当移动到位置后且有数据会执行此方法，
-	// 需要自己重新实现
-	OnPart func([]interface{})
+	call callbackFunc
 }
 
 type indata struct {
@@ -26,7 +25,10 @@ type indata struct {
 	must  bool
 }
 
-func NewCirCle(part int, intevel time.Duration) *CirCle {
+type callbackFunc func([]interface{})
+
+// NewCirCle 创建
+func NewCirCle(part int, intevel time.Duration, callback callbackFunc) *CirCle {
 	part++
 	setlist := make([]*Set, part)
 	for i := 0; i < part; i++ {
@@ -39,6 +41,7 @@ func NewCirCle(part int, intevel time.Duration) *CirCle {
 		taskOut: make(chan interface{}, 1024),
 		taskIn:  make(chan indata, 1024),
 		closed:  make(chan struct{}),
+		call:    callback,
 	}
 	go c.task(intevel)
 	return c
@@ -81,7 +84,8 @@ func (c *CirCle) task(intevel time.Duration) {
 					delete(c.bindmap, ele[k])
 				}
 				item.Clear()
-				go c.OnPart(ele)
+				// 异步执行防止堵塞
+				go c.call(ele)
 			}
 			// 向后移动一格
 			c.index = (c.index + 1) % c.part
