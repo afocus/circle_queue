@@ -39,7 +39,7 @@ callback := func(values []interface{}){
 }
 
 // 创建一个由10个格子组成的环，每2秒移动一格
-c := NewCircle(10, time.Second*2)
+c := NewCircle(10, time.Second*2, callback)
 
 // 模拟一个任务
 task := newTask()
