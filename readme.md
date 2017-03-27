@@ -44,5 +44,5 @@ c := NewCircle(10, time.Second*2, callback)
 // 模拟一个任务
 task := newTask()
 // 把此任务的序号放入环中 20秒后执行
-c.Put(task, true)
+c.Put(task, false)
 ```
